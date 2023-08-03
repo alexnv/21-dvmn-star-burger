@@ -1,9 +1,12 @@
 import json
+import pprint
 
 import phonenumbers
 from django.http import JsonResponse
 from django.templatetags.static import static
-
+from rest_framework.decorators import api_view
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import Product, Order, OrderItem, REGION_CODE
 
@@ -60,24 +63,21 @@ def product_list_api(request):
     })
 
 
-def register_order(request):
-    try:
-        form_data = json.loads(request.body.decode())
-        pure_phone = phonenumbers.parse(form_data['phonenumber'], REGION_CODE)
-        order = Order(first_name=form_data['firstname'],
-                      last_name=form_data['lastname'],
-                      phone_number=pure_phone,
-                      address=form_data['address'],
-                      )
-        order.save()
-        for order_item in form_data['products']:
-            OrderItem.objects.create(
-                order=order,
-                product_id=order_item['product'],
-                quantity=order_item['quantity'],
-            )
-    except ValueError:
-        return JsonResponse({
-            'error': 'bla bla bla',
-        })
-    return JsonResponse(form_data)
+@api_view(['POST'])
+def register_order(request: Request):
+    form_data = request.data
+    pprint.pprint(form_data)
+    pure_phone = phonenumbers.parse(form_data['phonenumber'], REGION_CODE)
+    order = Order(first_name=form_data['firstname'],
+                  last_name=form_data['lastname'],
+                  phone_number=pure_phone,
+                  address=form_data['address'],
+                  )
+    order.save()
+    for order_item in form_data['products']:
+        OrderItem.objects.create(
+            order=order,
+            product_id=order_item['product'],
+            quantity=order_item['quantity'],
+        )
+    return Response(form_data)
