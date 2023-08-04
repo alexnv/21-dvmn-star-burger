@@ -159,7 +159,7 @@ class Order(models.Model):
         choices=OrderStatus.choices,
         default=OrderStatus.NEW,
     )
-
+    comment = models.TextField('комментарий', blank=True)
     objects = NewOrderManager.as_manager()
 
     @property
