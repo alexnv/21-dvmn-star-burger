@@ -174,6 +174,13 @@ class Order(models.Model):
         choices=PaymentMethod.choices,
         default=PaymentMethod.UNKNOWN,
     )
+    restaurant = models.ForeignKey('Restaurant',
+                                   related_name='orders',
+                                   on_delete=models.SET_NULL,
+                                   verbose_name='ресторан исполнитель',
+                                   blank=True,
+                                   null=True,
+                                   )
 
     objects = NewOrderManager.as_manager()
 
