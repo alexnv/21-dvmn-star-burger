@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field import serializerfields
 from phonenumber_field.modelfields import PhoneNumberField
@@ -153,7 +154,9 @@ class Order(models.Model):
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=50)
     phonenumber = PhoneNumberField('телефон', region=REGION_CODE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    called_at = models.DateTimeField(blank=True, null=True)
+    delivered_at = models.DateTimeField(blank=True, null=True)
     order_status = models.CharField(
         max_length=2,
         choices=OrderStatus.choices,
