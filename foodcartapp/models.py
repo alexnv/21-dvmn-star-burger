@@ -166,10 +166,11 @@ class Order(models.Model):
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=50)
     phonenumber = PhoneNumberField('телефон', region=REGION_CODE, db_index=True)
-    created_at = models.DateTimeField(default=timezone.now, db_index=True)
-    called_at = models.DateTimeField(blank=True, null=True, db_index=True)
-    delivered_at = models.DateTimeField(blank=True, null=True, db_index=True)
+    created_at = models.DateTimeField(verbose_name='создан в', default=timezone.now, db_index=True)
+    called_at = models.DateTimeField(verbose_name='подтверждён в', blank=True, null=True, db_index=True)
+    delivered_at = models.DateTimeField(verbose_name='доставлен в', blank=True, null=True, db_index=True)
     order_status = models.CharField(
+        verbose_name='статус',
         max_length=2,
         choices=OrderStatus.choices,
         default=OrderStatus.NEW,
@@ -177,6 +178,7 @@ class Order(models.Model):
     )
     comment = models.TextField('комментарий', blank=True)
     payment_method = models.CharField(
+        verbose_name='метод оплаты',
         max_length=2,
         choices=PaymentMethod.choices,
         default=PaymentMethod.UNKNOWN,
