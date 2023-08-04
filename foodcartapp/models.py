@@ -1,3 +1,7 @@
+from collections import Counter
+from dataclasses import dataclass
+from typing import Iterable
+
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.dispatch import receiver
@@ -7,6 +11,8 @@ from phonenumber_field import serializerfields
 from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+
+from geocodercache.models import Distance
 
 REGION_CODE = 'RU'
 
@@ -227,6 +233,67 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'{self.product} {self.order}'
+
+
+@dataclass
+class RestaurantItem:
+    name: str
+    distance: [float] = None
+
+
+@dataclass
+class RestaurantItem:
+    name: str
+    address: str
+    distance: [float] = None
+
+
+def enrich_orders_with_restaurants(orders: models.QuerySet) -> Iterable[Order]:
+    menu_items_prefetch = models.Prefetch(
+        'items__product__menu_items',
+        queryset=RestaurantMenuItem.objects.select_related('restaurant', 'product').filter(availability=True),
+    )
+    orders = orders.prefetch_related(menu_items_prefetch)
+
+    result_orders = []
+    for order in orders:
+        counter = Counter()
+        ordered_products = [order_item.product for order_item in order.items.all()]
+        menu_items = []
+        for product in ordered_products:
+            menu_items.extend(product.menu_items.all())
+
+        for menu_item in menu_items:
+            if menu_item.product in ordered_products:
+                counter[menu_item.restaurant] += 1
+
+        restaurants = []
+        for restaurant in [restaurant for restaurant, cnt in dict(counter).items() if cnt >= len(ordered_products)]:
+            restaurants.append(
+                RestaurantItem(name=restaurant.name,
+                               address=restaurant.address,
+                               )
+            )
+        order.restaurants = restaurants
+        order.restaurants = sorted(restaurants, key=lambda e: (e.distance is None, e.distance))
+        result_orders.append(order)
+
+    # prepare coordinates and addresses
+    addresses_raw = set()
+    for order in result_orders:
+        addresses_raw.add(order.address)
+        for rest in order.restaurants:
+            addresses_raw.add(rest.address)
+    d = Distance(addresses_raw=addresses_raw)
+
+    for order in result_orders:
+        order_address = order.address
+        for rest in order.restaurants:
+            rest.distance = d.get_distance(order_address, rest.address)
+
+        order.restaurants = sorted(order.restaurants, key=lambda e: (e.distance is None, e.distance))
+
+    return result_orders
 
 
 @receiver(models.signals.pre_save, sender=OrderItem)
