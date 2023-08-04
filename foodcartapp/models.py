@@ -282,7 +282,6 @@ def enrich_orders_with_restaurants(orders: models.QuerySet) -> Iterable[Order]:
         order.restaurants = sorted(restaurants, key=lambda e: (e.distance is None, e.distance))
         result_orders.append(order)
 
-    # prepare coordinates and addresses
     addresses_raw = set()
     for order in result_orders:
         addresses_raw.add(order.address)
