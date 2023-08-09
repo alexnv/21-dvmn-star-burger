@@ -69,6 +69,6 @@ def product_list_api(request):
 def register_order(request: Request):
     form_data = request.data
     serializer = OrderSerializer(data=form_data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
