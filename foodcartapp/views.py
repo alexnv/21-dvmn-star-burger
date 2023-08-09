@@ -9,7 +9,8 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from .models import Product, Order, OrderItem, REGION_CODE, OrderSerializer
+from .models import Product, Order, OrderItem, REGION_CODE
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
