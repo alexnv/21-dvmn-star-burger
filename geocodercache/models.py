@@ -18,10 +18,10 @@ class Address(models.Model):
     lat = models.FloatField('Широта')
     long = models.FloatField('Долгота')
     update_ts = models.DateTimeField(
-            auto_now_add=True,
-            blank=True,
-            db_index=True,
-            verbose_name='изменён в',
+        auto_now_add=True,
+        blank=True,
+        db_index=True,
+        verbose_name='изменён в',
     )
 
     class Meta:
@@ -72,18 +72,32 @@ class Distance:
             "apikey": settings.YANDEX_MAP_API_KEY,
             "format": "json",
         })
-        if response.status_code == 403:
-            logging.warning(
-                'problems with authorizing to {}, check your STAR_BURGER__YANDEX_MAP_API_KEY'.format(base_url))
+        try:
+            response.raise_for_status()
+            if response.status_code == 403:
+                logging.warning(
+                    'problems with authorizing to {}, check your STAR_BURGER__YANDEX_MAP_API_KEY'.format(base_url))
+                return None, None
+        except requests.exceptions.ReadTimeout:
+            logging.error("Превышено время ожидания...")
+            return None, None
+        except requests.exceptions.ConnectionError as error:
+            logging.error(error, "Ошибка соединения")
+            return None, None
+        except Exception as error:
+            logging.error(error, "ERROR_2")
             return None, None
 
-        response.raise_for_status()
-        found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+        try:
+            found_places = response.json()['response']['GeoObjectCollection']['featureMember']
 
-        if not found_places:
-            logging.warning('cannot find coordinates for address: {}'.format(address))
+            if not found_places:
+                logging.warning('cannot find coordinates for address: {}'.format(address))
+                return None, None
+
+            most_relevant = found_places[0]
+            lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+            return float(lon), float(lat)
+        except KeyError as error:
+            logging.error(error, "Ошибка парсинга ответа")
             return None, None
-
-        most_relevant = found_places[0]
-        lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-        return float(lon), float(lat)
