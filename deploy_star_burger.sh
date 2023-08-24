@@ -4,7 +4,7 @@ git pull
 echo
 echo
 echo "******************Устанавливаем бибилиотеки Python******************"
-source .venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt
 echo
 echo
