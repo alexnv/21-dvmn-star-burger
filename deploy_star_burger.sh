@@ -27,3 +27,6 @@ echo
 echo "******************Перезапуск сервисов Systemd******************"
 systemctl reload nginx.service
 systemctl restart 21-dvmn-star-burger
+echo
+echo "******************Делаем запись в ролбар******************"
+python rollbar_notify.py
