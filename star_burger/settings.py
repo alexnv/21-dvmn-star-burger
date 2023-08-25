@@ -131,8 +131,8 @@ STATICFILES_DIRS = [
 YANDEX_MAP_API_KEY = env('STAR_BURGER__YANDEX_MAP_API_KEY', '')
 
 ROLLBAR = {
-    'access_token': env('ROLLBAR_TOKEN'),
-    'environment': env('ROLLBAR_ENV'),
+    'access_token': env('ROLLBAR_TOKEN', ''),
+    'environment': env('ROLLBAR_ENV', ''),
     'code_version': '1.0',
     'root': BASE_DIR,
 }
