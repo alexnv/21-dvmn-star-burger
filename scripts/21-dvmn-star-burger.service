@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/opt/21-dvmn-star-burger/venv/bin/gunicorn -b 127.0.0.1:8080 star_burger.wsgi:application
+ExecStart=/opt/21-dvmn-star-burger/venv/bin/gunicorn -w 3 -b 127.0.0.1:8080 star_burger.wsgi:application
 Restart=always
 WorkingDirectory=/opt/21-dvmn-star-burger/
 
