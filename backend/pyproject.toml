@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "star-burger"
+version = "0.1.0"
+description = ""
+authors = ["alexnv"]
+license = "GNU GENERAL PUBLIC LICENSE"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "3.2"
+django-debug-toolbar = ">=3.2.1"
+Pillow = ">=8.2.0"
+environs = {version = ">=9.3.2", extras = ["django"]}
+django-phonenumber-field = {version = ">=5.0.0", extras = ["phonenumbers"]}
+djangorestframework = ">=3.12.4"
+requests = ">=2.27.1"
+geopy = ">=2.2.0"
+gunicorn = ">=20.1.0"
+rollbar = ">=0.16.2"
+psycopg2 = "2.9.3"
+GitPython = "3.1.27"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,22 @@
+version: "3.9"
+
+volumes:
+  production_pg_data:
+
+services:
+  db:
+    container_name: star_burger_db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=star_burger
+    restart: always
+    image: "postgres:14.3-bullseye"
+    volumes:
+      - production_pg_data:/var/lib/postgresql/data
+
+
+networks:
+  default:
+    name: db_network
+    external: true

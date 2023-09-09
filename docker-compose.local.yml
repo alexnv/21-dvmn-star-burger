@@ -1,0 +1,47 @@
+version: "3.9"
+
+volumes:
+  local_pg_data:
+
+
+services:
+  web:
+    container_name: star_burger_web
+    build:
+        context: backend
+    command: python -m gunicorn -b 0.0.0.0:8080 --reload star_burger.wsgi:application
+    image: "star_burger_web:latest"
+    ports:
+      - 127.0.0.1:8080:8080
+    environment:
+      - POSTGRES_HOST=db
+      - STATIC_DIR_NAME=frontend
+      - SECRET_KEY=DebugSecretKey
+      - DEBUG=true
+    volumes:
+      - ./media:/code/media
+      #- /code/staticfiles
+      - ./backend/star_burger/.:/code
+      - ./static/.:/code/staticfiles
+    depends_on:
+      - db
+
+  db:
+    container_name: star_burger_db
+    image: "postgres:14.3-bullseye"
+    volumes:
+      - local_pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=star_burger
+      - POSTGRES_USER=some_user
+      - POSTGRES_PASSWORD=P@ssw0rd
+
+  frontend:
+    container_name: star_burger_frontend
+    build:
+      context: frontend
+    image: star_burger_frontend:latest
+    command: /frontend/node_modules/.bin/parcel watch bundles-src/index.js --dist-dir /frontend/bundles --public-url="./"
+    volumes:
+      - ./frontend/bundles-src/:/frontend/bundles-src/
+      - ./static/:/frontend/bundles/

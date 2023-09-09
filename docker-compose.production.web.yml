@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    container_name: star_burger_web
+    build:
+        context: backend
+    image: "star_burger_web:latest"
+    command: "python -m gunicorn -b 0.0.0.0:8080 star_burger.wsgi:application"
+    ports:
+      - 127.0.0.1:8080:8080
+    environment:
+      - DEBUG=false
+      - POSTGRES_USER=${POSTGRES_USER:?err}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
+      - SECRET_KEY=${SECRET_KEY:?err}
+      - POSTGRES_HOST=${POSTGRES_HOST:-db}
+    volumes:
+      - ./media:/code/media
+    restart: always
+    env_file:
+      - .env
+
+networks:
+  default:
+    name: db_network
+    external: true
+
